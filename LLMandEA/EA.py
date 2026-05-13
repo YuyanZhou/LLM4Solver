@@ -129,7 +129,7 @@ class MyLLM:
         url = "https://openai.api2d.net/v1/chat/completions"
         headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer fk-YOUR_FORWARD_KEY_HERE' 
+        'Authorization': 'Bearer fk-YOUR_FORWARD_KEY_HERE'
         }
         data = {
         "model": model,
