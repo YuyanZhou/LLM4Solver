@@ -1,0 +1,43 @@
+-------------------
+score:4.3233671509503075
+<start_des>
+The new score function integrates multiple factors to evaluate the suitability of a variable for rounding in the diving heuristic. It takes into account the possibility of rounding down/up without violating feasibility, balances the fractional part of the solution value with the number of lock constraints for each rounding direction, considers the impact of the variable on the objective function, pseudo cost values, and root relaxation solutions. Additionally, it rewards simplicity and feasible binary variables while penalizing complexity and potential constraint violations.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = candsfrac/(nlocksdown + nlocksup) - (mayrounddown + mayroundup)            
+    score -= obj/objnorm if obj > 0 and objnorm else 0
+    score -= pscostdown + pscostup                                                             
+    score += rootsolval               
+    score += 5/nNonz                                                                       
+    score += 100 if isBinary else -50                                              
+    
+    roundup = True if candsfrac >= 0.4 else False                                           
+
+    return score, roundup
+
+</end_code>
+
+-------------------
+score:2.213566789288594
+<start_des>
+The new score function for the diving heuristic evaluates variable score based on various factors such as fractional part, objective function impact, pseudo cost values, solution values, and data characteristics like binary nature and number of non-zero entries. It encourages simplicity, penalizes complexity, and favors feasible binary variables, aiming to strike a balance between exploration and exploitation in the rounding decision process.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = candsfrac - 0.5*(mayrounddown + mayroundup)
+    score -= obj/(1+objnorm)
+    score -= (0.5*pscostdown + 0.5*pscostup)                                                      
+    score -= min(rootsolval * 0.4, 6)
+    score -= 5/nNonz
+    score += 100 if isBinary else -50                                               
+                                                    
+    roundup = True if candsfrac >= 0.3 else False                                            
+    
+    return score, roundup
+</end_code>                                                                                                                                                                                                                                                                                                                                                                  .
+

@@ -1,0 +1,63 @@
+-------------------
+score:536.6885290164902
+<start_des>
+The new score function will consider a weighted combination of different features to decide the variable's score for diving heuristic. It will penalize variables with high fractional parts, high pseudo cost values for rounding, and low number of locks for rounding direction. It will also take into account the objective function value and its Euclidean norm to guide the variable selection process. The function will prioritize variables that are binary and have a high number of nonzero entries. 
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0.5 * (candsfrac + 1) / (pscostdown + pscostup + 1) * (1 + nlocksdown) * (1 + nlocksup) * (obj + objnorm) * (1 + nNonz) * (1 if isBinary else 0.5)
+    roundup = True if candsol > 0.5 else False
+    return score, roundup
+</end_code>
+
+-------------------
+score:536.6885290164902
+<start_des>
+The new score function combines different features to calculate the variable's score for the diving heuristic. It penalizes variables with high fractional parts, high pseudo cost values for rounding, and low number of locks for rounding direction. It also considers the objective function value and its Euclidean norm to guide the variable selection process. Additionally, it prioritizes binary variables and variables with a high number of nonzero entries, while also taking into account the possibility of rounding the variable down or up within feasibility constraints.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0.4 * ((candsfrac + 1) / ((pscostdown + pscostup) + 1)) * ((1 + nlocksdown) * (1 + nlocksup)) * (obj + objnorm) * (1 + nNonz) * (1 if isBinary else 0.5) * (0.5 if mayrounddown or mayroundup else 1)
+    
+    roundup = candsfrac > 0.5
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:439.59604129384536
+<start_des>
+The new score function will prioritize variables with low fractional parts, high objective function values, high number of locks for rounding, and a high number of nonzero entries. It will also consider the variable's pseudo cost values and the Euclidean norm of the objective function vector to guide the selection process. Additionally, it will promote binary variables by giving them a higher score. The function will penalize variables that have limited rounding options and are challenging to explore.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0.4 * (1 - candsfrac) * (1 + obj) * (1 + nlocksdown) * (1 + nNonz) / ((pscostdown + pscostup) + 1) * (1 + objnorm) * (2 if isBinary else 1)
+    roundup = candsfrac > 0.5
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:172.51148285382092
+<start_des>
+The new score function calculates the variable's score by considering a weighted combination of different features. It penalizes variables with high fractional parts, pseudo cost values, and low locking constraints, while prioritizing variables with high objective function values, Euclidean norm, and number of nonzero entries. It also takes into account whether the variable is binary and the solution value in the last root node's relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0.5 * candsfrac / (pscostdown + pscostup + 1) * (1 + nlocksdown) * (1 + nlocksup) * (obj + objnorm) * (1 + nNonz) * (1 if isBinary else 0.5)
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+        
+    if rootsolval > 0:
+        score += rootsolval * 0.5
+    
+    roundup = True if candsol > 0.5 else False
+    
+    return score, roundup
+</end_code>
+

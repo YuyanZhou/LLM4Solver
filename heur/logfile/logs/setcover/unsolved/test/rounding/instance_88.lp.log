@@ -1,0 +1,32 @@
+presolving:
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver found nothing
+(round 1, exhaustive) 0 del vars, 0 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 500 upgd conss, 0 impls, 0 clqs
+   (0.0s) probing: 51/1000 (5.1%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.0s) probing aborted: 50/50 successive totally useless probings
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present (symcode time: 0.00)
+presolving (2 rounds: 2 fast, 2 medium, 2 exhaustive):
+ 0 deleted vars, 0 deleted constraints, 0 added constraints, 0 tightened bounds, 0 added holes, 0 changed sides, 0 changed coefficients
+ 0 implications, 0 cliques
+presolved problem has 1000 variables (1000 bin, 0 int, 0 impl, 0 cont) and 500 constraints
+    500 constraints of type <logicor>
+transformed objective value is always integral (scale: 1)
+Presolving Time: 0.05
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.1s|     1 |     0 |   810 |     - |    18M |   0 |1000 | 500 | 500 |   0 |  0 |   0 |   0 | 1.887204e+02 |      --      |    Inf | unknown
+r 0.1s|     1 |     0 |   810 |     - |rounding|   0 |1000 | 500 | 500 |   0 |  0 |   0 |   0 | 1.887204e+02 | 6.720000e+02 | 256.08%| unknown
+* 0.1s|     1 |     0 |   810 |     - |strongbr|   0 |1000 | 500 | 500 |   0 |  1 |   0 |   0 | 1.887204e+02 | 6.660000e+02 | 252.90%| unknown
+* 0.1s|     1 |     0 |   810 |     - |strongbr|   0 |1000 | 500 | 500 |   0 |  1 |   0 |   0 | 1.887204e+02 | 6.360000e+02 | 237.01%| unknown
+* 0.1s|     1 |     0 |   810 |     - |strongbr|   0 |1000 | 500 | 500 |   0 |  1 |   0 |   2 | 1.887204e+02 | 6.290000e+02 | 233.30%| unknown
+* 0.2s|     1 |     0 |   810 |     - |strongbr|   0 |1000 | 500 | 500 |   0 |  1 |   0 |   4 | 1.887204e+02 | 5.970000e+02 | 216.34%| unknown
+* 0.3s|     1 |     0 |   810 |     - |strongbr|   0 |1000 | 500 | 500 |   0 |  1 |   0 |  19 | 1.887204e+02 | 5.840000e+02 | 209.45%| unknown
+  0.3s|     1 |     2 |   810 |     - |    19M |   0 |1000 | 500 | 500 |   0 |  1 |   0 |  24 | 1.910673e+02 | 5.840000e+02 | 205.65%| unknown
+
+SCIP Status        : solving was interrupted [node limit reached]
+Solving Time (sec) : 0.35
+Solving Nodes      : 1
+Primal Bound       : +5.84000000000000e+02 (49 solutions)
+Dual Bound         : +1.91067325933142e+02
+Gap                : 205.65 %

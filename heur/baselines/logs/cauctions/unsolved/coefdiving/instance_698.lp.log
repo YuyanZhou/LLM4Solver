@@ -1,0 +1,37 @@
+presolving:
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver (2 rounds): 0 aggregations, 23 fixings, 0 bound changes
+(round 1, medium)     23 del vars, 0 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 189 clqs
+(round 2, exhaustive) 23 del vars, 7 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 189 clqs
+(round 3, exhaustive) 23 del vars, 7 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 0 chg coeffs, 182 upgd conss, 0 impls, 189 clqs
+(round 4, medium)     65 del vars, 7 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 42 chg coeffs, 182 upgd conss, 0 impls, 189 clqs
+(round 5, fast)       101 del vars, 9 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 42 chg coeffs, 182 upgd conss, 0 impls, 184 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver (2 rounds): 0 aggregations, 1 fixings, 0 bound changes
+(round 6, medium)     102 del vars, 9 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 42 chg coeffs, 182 upgd conss, 0 impls, 184 clqs
+(round 7, exhaustive) 102 del vars, 14 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 42 chg coeffs, 182 upgd conss, 0 impls, 184 clqs
+   (0.0s) probing: 51/398 (12.8%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.0s) probing aborted: 50/50 successive totally useless probings
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present (symcode time: 0.00)
+presolving (8 rounds: 8 fast, 7 medium, 4 exhaustive):
+ 102 deleted vars, 14 deleted constraints, 0 added constraints, 0 tightened bounds, 0 added holes, 7 changed sides, 42 changed coefficients
+ 0 implications, 184 cliques
+presolved problem has 398 variables (398 bin, 0 int, 0 impl, 0 cont) and 175 constraints
+    175 constraints of type <setppc>
+Presolving Time: 0.02
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.1s|     1 |     0 |  1323 |     - |  5210k |   0 | 398 | 175 | 175 |   0 |  0 |   0 |   0 | 7.522768e+03 |      --      |    Inf | unknown
+d 0.1s|     1 |     0 |  1323 |     - |coefdivi|   0 | 398 | 175 | 175 |   0 |  1 |   0 |   0 | 7.522768e+03 | 3.447235e+03 | 118.23%| unknown
+d 0.1s|     1 |     0 |  1478 |     - |coefdivi|   0 | 398 | 175 | 175 |   0 |  1 |   0 |   0 | 7.522768e+03 | 4.544042e+03 |  65.55%| unknown
+d 0.1s|     1 |     0 |  1522 |     - |coefdivi|   0 | 398 | 175 | 175 |   0 |  1 |   0 |   0 | 7.522768e+03 | 6.708638e+03 |  12.14%| unknown
+  0.1s|     1 |     0 |  1522 |     - |  5308k |   0 | 398 | 175 | 175 |   0 |  1 |   0 |   0 | 7.522768e+03 | 6.708638e+03 |  12.14%| unknown
+  0.3s|     1 |     2 |  1522 |     - |  5479k |   0 | 398 | 175 | 175 |   0 |  2 |   0 |  45 | 7.472784e+03 | 6.708638e+03 |  11.39%| unknown
+
+SCIP Status        : solving was interrupted [node limit reached]
+Solving Time (sec) : 0.26
+Solving Nodes      : 1
+Primal Bound       : +6.70863768155444e+03 (48 solutions)
+Dual Bound         : +7.47278372938436e+03
+Gap                : 11.39 %

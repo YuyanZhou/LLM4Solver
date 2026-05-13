@@ -1,0 +1,43 @@
+presolving:
+(round 1, fast)       0 del vars, 1 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 192 clqs
+(round 2, fast)       1 del vars, 1 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 192 clqs
+   (0.0s) running MILP presolver
+   (0.0s) MILP presolver (2 rounds): 0 aggregations, 12 fixings, 0 bound changes
+(round 3, medium)     13 del vars, 1 del conss, 0 add conss, 0 chg bounds, 0 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 192 clqs
+(round 4, exhaustive) 13 del vars, 8 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 0 chg coeffs, 0 upgd conss, 0 impls, 192 clqs
+(round 5, exhaustive) 13 del vars, 8 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 0 chg coeffs, 185 upgd conss, 0 impls, 192 clqs
+(round 6, medium)     45 del vars, 8 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 32 chg coeffs, 185 upgd conss, 0 impls, 192 clqs
+(round 7, fast)       56 del vars, 8 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 32 chg coeffs, 185 upgd conss, 0 impls, 191 clqs
+(round 8, exhaustive) 56 del vars, 10 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 32 chg coeffs, 185 upgd conss, 0 impls, 191 clqs
+(round 9, exhaustive) 57 del vars, 10 del conss, 0 add conss, 0 chg bounds, 7 chg sides, 32 chg coeffs, 185 upgd conss, 0 impls, 190 clqs
+   (0.0s) probing: 51/443 (11.5%) - 0 fixings, 0 aggregations, 0 implications, 0 bound changes
+   (0.0s) probing aborted: 50/50 successive totally useless probings
+   (0.0s) symmetry computation started: requiring (bin +, int +, cont +), (fixed: bin -, int -, cont -)
+   (0.0s) no symmetry present (symcode time: 0.00)
+presolving (10 rounds: 10 fast, 7 medium, 5 exhaustive):
+ 57 deleted vars, 10 deleted constraints, 0 added constraints, 0 tightened bounds, 0 added holes, 7 changed sides, 32 changed coefficients
+ 0 implications, 190 cliques
+presolved problem has 443 variables (443 bin, 0 int, 0 impl, 0 cont) and 183 constraints
+    183 constraints of type <setppc>
+Presolving Time: 0.02
+
+ time | node  | left  |LP iter|LP it/n|mem/heur|mdpt |vars |cons |rows |cuts |sepa|confs|strbr|  dualbound   | primalbound  |  gap   | compl. 
+  0.1s|     1 |     0 |  1448 |     - |  5356k |   0 | 443 | 183 | 183 |   0 |  0 |   0 |   0 | 7.879388e+03 |      --      |    Inf | unknown
+d 0.1s|     1 |     0 |  1448 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 2.405596e+03 | 227.54%| unknown
+d 0.1s|     1 |     0 |  1514 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 2.527252e+03 | 211.78%| unknown
+d 0.1s|     1 |     0 |  1595 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 2.784433e+03 | 182.98%| unknown
+d 0.2s|     1 |     0 |  1639 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 3.382875e+03 | 132.92%| unknown
+d 0.2s|     1 |     0 |  1707 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 3.707261e+03 | 112.54%| unknown
+d 0.2s|     1 |     0 |  1757 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 5.440969e+03 |  44.82%| unknown
+d 0.2s|     1 |     0 |  1820 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 5.513058e+03 |  42.92%| unknown
+d 0.2s|     1 |     0 |  1825 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 6.345601e+03 |  24.17%| unknown
+d 0.2s|     1 |     0 |  1827 |     - |distribu|   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 6.484817e+03 |  21.51%| unknown
+  0.2s|     1 |     0 |  1827 |     - |  5504k |   0 | 443 | 183 | 183 |   0 |  1 |   0 |   0 | 7.879388e+03 | 6.484817e+03 |  21.51%| unknown
+  0.3s|     1 |     2 |  1827 |     - |  5663k |   0 | 443 | 183 | 183 |   0 |  2 |   0 |  41 | 7.854667e+03 | 6.484817e+03 |  21.12%| unknown
+
+SCIP Status        : solving was interrupted [node limit reached]
+Solving Time (sec) : 0.34
+Solving Nodes      : 1
+Primal Bound       : +6.48481692599876e+03 (53 solutions)
+Dual Bound         : +7.85466739753144e+03
+Gap                : 21.12 %

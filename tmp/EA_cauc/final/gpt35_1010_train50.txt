@@ -1,0 +1,3313 @@
+round:0
+-------------------
+score:60.34301145154184
+<start_des>
+The new score function will prioritize variables that have high fractional parts and low pseudo costs for rounding, indicating that they have the potential to be easily rounded to integral values without significantly affecting the objective function. The function will also consider the number of locks for rounding and the number of nonzero entries in the variable, as well as whether the variable is binary or not.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = candsfrac / (pscostdown + pscostup + 1) + (1 / (nlocksdown + nlocksup + 1)) + (nNonz / (objnorm + 1))
+    
+    if mayroundup:
+        roundup = True
+    elif mayrounddown:
+        roundup = False
+    else:
+        roundup = False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:60.319045173199385
+<start_des>
+The new score function will consider multiple factors such as the fractional part of the solution value, feasibility of rounding, number of locks, objective function value, pseudo cost, Euclidean norm of the objective function vector, solution value in the root node's relaxation, number of nonzero entries, and binary type of the variable. It will penalize variables that have limited rounding options and prioritize variables with a higher objective function value, lower fractional part, lower pseudo cost, and lower number of locks for rounding. The function will aim to balance exploration and exploitation in selecting the best variable for rounding.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = obj * (1/candsfrac) + objnorm * (pscostdown + pscostup) - nlocksdown * nlocksup + rootsolval - nNonz
+    roundup = True if obj > 0 and mayroundup else False
+    return score, roundup
+</end_code>
+
+-------------------
+score:59.912386669500584
+<start_des>
+The new score function 'myheurdiving' aims to prioritize variables that have a higher potential to improve the objective function value while also taking into consideration the feasibility and exploration of different rounding directions. The function penalizes variables that have limited rounding options and prioritizes variables with fractional values that could potentially lead to a significant improvement in the objective function value.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, 
+                 pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    # Initialize score
+    score = 0
+    
+    # Determine the rounding direction based on available options
+    if mayroundup and not mayrounddown:
+        roundup = True
+    elif mayrounddown and not mayroundup:
+        roundup = False
+    else:
+        roundup = True  # Default to rounding up if both options are available
+    
+    # Calculate score based on variables
+    score += objnorm + obj  # Prioritize variables that contribute significantly to the objective function
+    score -= candsfrac * 0.5  # Penalize fractional values
+    score -= nlocksdown + nlocksup  # Penalize variables with many locks
+    
+    # Adjust score for binary variables
+    if isBinary:
+        score += 10  # Boost score for binary variables
+    
+    # Return the final score and rounding direction
+    return score, roundup
+</end_code>
+
+-------------------
+score:59.73036799286291
+<start_des>
+The new score function aims to prioritize variables based on a combination of their fractional part, solution value, objective function value, number of locks for rounding, pseudo cost values, root solution value, number of non-zero entries, and binary type. It penalizes variables that have limited rounding options and favors variables with a higher impact on the objective function and diverse characteristics.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    # Determine rounding direction
+    roundup = False if mayrounddown and not mayroundup else True
+
+    # Calculate score based on various features
+    score = candsfrac * 0.1 + candsol * 0.2 + nlocksdown + nlocksup + obj * 0.5 + objnorm * 0.3 - pscostdown * 0.2 - pscostup * 0.2 + rootsolval * 0.4 + nNonz * 0.1
+    
+    if isBinary:
+        score += 0.5
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:59.638351371143536
+<start_des>
+The new score function aims to prioritize variables based on a combination of the fractional part of the solution value, objective function value, pseudo costs, and other relevant factors while penalizing variables that have limited rounding options. The function will calculate a score that represents the potential benefit of rounding the variable in a specific direction.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    if isBinary:
+        if mayrounddown and not mayroundup:
+            return 0, False
+        elif not mayrounddown and mayroundup:
+            return 0, True
+        else:
+            return 0
+        
+    score = candsfrac * obj * (1 + (pscostdown + pscostup) / objnorm) / (nNonz + 1)
+    roundup = True if candsfrac > 0.5 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:57.50807462549785
+<start_des>
+The new score function will prioritize variables with high fractional parts that are close to being integral, low pseudo costs, and low locks for rounding. Additionally, it will penalize variables that are not binary and have high numbers of non-zero entries. The function will also consider the variable's contribution to the objective function and the Euclidean norm of the objective function vector.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalty = 0
+    score = (1 - candsfrac) * (1 / (1 + abs(obj))) * (1 / (1 + objnorm)) * (1 / (1 + pscostdown)) * (1 / (1 + pscostup)) * (1 / (1 + nlocksdown + nlocksup))
+    
+    if not isBinary:
+        penalty += 0.5
+    if mayrounddown or mayroundup:
+        penalty += 0.1
+    if nNonz > 5:
+        penalty += 0.2
+    if rootsolval == 0:
+        penalty += 0.3
+    
+    if mayroundup and not mayrounddown:
+        roundup = True
+    elif mayrounddown and not mayroundup:
+        roundup = False
+    else:
+        roundup = False
+    
+    score -= penalty
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:37.206071877979554
+<start_des>
+The new score function aims to prioritize variables that have a high potential to impact the objective function positively while keeping the feasibility of the solution intact. It considers the fractional part of the variable value, the objective function value, the pseudo cost, the number of locks for rounding, and the number of non-zero entries in the variable. The function penalizes variables that have limited rounding options and rewards variables that have a high impact on improving the objective function value.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = objnorm * (1 / (abs(candsfrac) + 1)) * (2 ** nNonz)
+    
+    roundup = True if obj > 0 and pscostup >= 0 else False
+
+    if not mayrounddown:
+        score *= 0.7
+    if not mayroundup:
+        score *= 0.6
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:17.062368036629767
+<start_des>
+The new score function will prioritize variables with a high potential to improve the objective function value and are not heavily locked in one rounding direction. It will penalize variables that have limited rounding options and have high pseudo costs, as these variables may lead to infeasibility or suboptimal solutions.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = obj + objnorm - nlocksdown - nlocksup - pscostdown - pscostup - nNonz
+    roundup = True if candsol < 0.5 else False  # Round up if the fractional part of solution value is less than 0.5
+    return score, roundup
+</end_code>
+
+-------------------
+score:16.994304379554396
+<start_des>
+The new score function will prioritize variables with high pseudo cost values, low fractional parts, and a high number of locks for rounding down. It will also consider the binary nature of the variable and the objective function value to determine the score and rounding direction.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = pscostdown * (1 - candsfrac) + obj + nlocksdown * 0.5 + objnorm * 0.3 + pscostup * 0.2 + rootsolval * 0.1 + nNonz * 0.1
+    roundup = False
+    
+    if candsfrac < 0.5:
+        roundup = True
+    if isBinary and obj > 0:
+        score *= 1.2
+    if not mayrounddown:
+        score *= 0.8
+    if not mayroundup:
+        score *= 0.8
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function will prioritize variables with a high fractional part and lower objective function value, aiming to round those variables up to potentially improve the objective function. It will also consider the number of locks for rounding up/down, the pseudo cost values, and the solution value in the root relaxation, giving more weight to variables with binary type and fewer non-zero entries.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    if mayrounddown or mayroundup:
+        penalize = max(0.5 - candsfrac, 0.0) * 10
+    else:
+        penalize = 0.0
+
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+round:1
+-------------------
+score:16.787988005966753
+<start_des>
+The new score function will prioritize variables with a high potential to improve the objective function value while penalizing variables that have limited rounding options and high pseudo costs. It will also take into account the fractional part of the solution value, the number of locks for rounding down/up, the Euclidean norm of the objective function vector, the number of nonzero entries in the variable, and whether the variable is binary.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = obj + objnorm - nlocksdown - nlocksup - pscostdown - pscostup - 0.5 * (mayrounddown + mayroundup) - 2 * candsfrac - nNonz
+    roundup = True if candsol < 0.5 else False  # Round up if the fractional part of solution value is less than 0.5
+    return score, roundup
+</end_code>
+
+-------------------
+score:16.787988005966753
+<start_des>
+The new score function prioritizes variables with high potential to improve the objective function value, penalizes variables with limited rounding options and high pseudo costs, and considers the fractional part of the solution value, the number of locks for rounding down/up, the Euclidean norm of the objective function vector, the number of nonzero entries in the variable, and whether the variable is binary. It also takes into account the rootsolval, i.e., the solution of the variable in the last root node's relaxation, if available.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = obj + objnorm - nlocksdown - nlocksup - pscostdown - pscostup - 0.5 * (mayrounddown + mayroundup) - 2 * candsfrac - nNonz
+    if rootsolval != 0:
+        score -= rootsolval
+    roundup = True if candsol < 0.5 else False  # Round up if the fractional part of the solution value is less than 0.5
+    return score, roundup
+</end_code>
+
+-------------------
+score:15.147406206406878
+<start_des>
+The new score function will calculate the score based on a combination of factors including the variable's pseudo cost values, fractional solution value, objective function value, number of locks for rounding, and whether the variable is binary. It will prioritize variables with high pseudo cost values and low fractional parts while penalizing variables with high locking constraints. The function will also consider the binary nature of the variable and adjust the score accordingly.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = pscostdown * (1 - candsfrac) + obj - nlocksdown * 0.5 + 0.3 * objnorm + pscostup * 0.2
+    
+    if candsfrac < 0.5:
+        roundup = True
+        score *= 1.1
+    else:
+        roundup = False
+    
+    if isBinary:
+        score *= 1.2
+    if not mayrounddown:
+        score *= 0.9
+    if not mayroundup:
+        score *= 0.9
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:13.92485508312619
+<start_des>
+The new score function considers the balance between the possibility of rounding and the impact on the objective function. It penalizes variables that cannot be rounded easily while prioritizing variables with a significant impact on the objective function.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = objnorm / (1 + nNonz)  # prioritize based on objective function and number of nonzero entries
+    
+    if not mayrounddown and not mayroundup:
+        score -= 0.5  # penalize if impossible to round
+    
+    if pscostdown > pscostup:
+        roundup = True
+    else:
+        roundup = False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:7.733648459904135
+<start_des>
+The new score function prioritizes variables with a high fractional part and lower objective function value for potential rounding up. It penalizes variables that have limited rounding options and high pseudo costs, encouraging further exploration. Additionally, it considers the number of locks for rounding up/down, the rootsolval value, the number of nonzero entries, and whether the variable is binary.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    penalize = 0.0
+    if not mayrounddown or not mayroundup:
+        penalize = 0.5
+
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:7.733648459904135
+<start_des>
+The new score function will consider the fractional part of the solution value, the variable's objective function value, the number of locks for rounding, the Euclidean norm of the objective function vector, pseudo cost values, the solution value in the root relaxation, the number of non-zero entries, and the variable type. It will prioritize variables with a high fractional part and a lower objective function value, penalizing variables that have limited rounding options and high pseudo costs. The function aims to guide the rounding direction based on these factors to potentially improve the objective function value.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    penalize = max(0.5 - candsfrac, 0.0) * 10 if not mayrounddown and not mayroundup else 0
+    
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:7.234559234328649
+<start_des>
+The new score function will prioritize variables with higher fractional parts and lower pseudo cost values for rounding. It will penalize variables that have a high number of locks for rounding and high Euclidean norm of the objective function vector. For binary variables, it will prioritize those with a lower number of nonzero entries and for non-binary variables, it will consider the objective value and the feasibility of rounding up/down.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    # Determine whether to round up based on the features
+    roundup = True if candsfrac > 0.5 else False
+    
+    # Calculate score based on the features
+    score += candsfrac / (1 + pscostdown + pscostup)
+    score -= nlocksdown + nlocksup
+    score -= objnorm
+    
+    if isBinary:
+        score -= nNonz
+    else:
+        score += obj
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function will prioritize variables with a high fractional part and lower objective function value, aiming to round those variables up to potentially improve the objective function. It will also consider the number of locks for rounding up/down, the pseudo cost values, and the solution value in the root relaxation, giving more weight to variables with binary type and fewer non-zero entries.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    if mayrounddown or mayroundup:
+        penalize = max(0.5 - candsfrac, 0.0) * 10
+    else:
+        penalize = 0.0
+
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.745986508992373
+<start_des>
+The new score function calculates the variable's score based on a combination of the given features. It penalizes variables that cannot be rounded up or down easily while also taking into account the fractional part of the solution value, the number of locks for rounding, the objective function value normalized by the Euclidean norm, the pseudo costs for rounding, the variable's solution value in the last root node's relaxation, the number of nonzero entries, and the binary type of the variable. The function determines the rounding direction based on the calculated score, with a higher score indicating a higher likelihood of rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalty = 0.0
+    if mayrounddown or mayroundup:
+        penalty = 0.1
+    
+    score = (candsfrac * objnorm) / (nlocksdown + nlocksup + 1) + obj + pscostdown + pscostup + rootsolval - penalty - (nNonz * 0.5)
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.455411280129207
+<start_des>
+The new score function will prioritize variables with a lower fractional part in their solution value, higher pseudo cost values, and a higher Euclidean norm of the objective function vector. It will penalize variables that have a higher number of locks for rounding up, lower number of locks for rounding down, and a lower number of nonzero entries. Additionally, it will consider the possibility of rounding down or up without losing feasibility, penalizing variables that have this possibility. Lastly, for binary variables, it will give a higher score if the variable is closer to being rounded up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # determine rounding direction
+    roundup = False
+    if candsfrac >= 0.5:
+        roundup = True
+    
+    # calculate score
+    score = candsfrac * pscostup / (nlocksdown + 1) * (nlocksup + 1) * objnorm / (nNonz + 1)
+    if mayrounddown:
+        score -= 0.5
+    if mayroundup:
+        score -= 0.5
+    if isBinary:
+        score += abs(candsol - 1)  # closer to 1 is better for binary variables
+    
+    return score, roundup
+</end_code>
+
+round:2
+-------------------
+score:8.943664063744855
+<start_des>
+The new score function will consider the balance between the fractional value of the variable and the objective function value, penalizing variables that are harder to round while prioritizing variables that contribute significantly to improving the objective function. It will also take into account the number of non-zero entries, the variable's pseudo cost values, and the solution value in the root relaxation, giving more weight to binary type variables.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    penalize = max(0.5 - candsfrac, 0.0) * 10 if mayrounddown or mayroundup else 0
+
+    score = candsfrac * obj / (1 + objnorm) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown <= nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:7.733648459904135
+<start_des>
+The new score function prioritizes variables with a high fractional part and lower objective function value for potential rounding up. It penalizes variables that have limited rounding options and high pseudo costs, encouraging further exploration. Additionally, it considers the number of locks for rounding up/down, the rootsolval value, the number of nonzero entries, and whether the variable is binary.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    penalize = 0.0
+    if not mayrounddown or not mayroundup:
+        penalize = 0.5
+
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:7.733648459904135
+<start_des>
+The new score function will consider the fractional part of the solution value, the variable's objective function value, the number of locks for rounding, the Euclidean norm of the objective function vector, pseudo cost values, the solution value in the root relaxation, the number of non-zero entries, and the variable type. It will prioritize variables with a high fractional part and a lower objective function value, penalizing variables that have limited rounding options and high pseudo costs. The function aims to guide the rounding direction based on these factors to potentially improve the objective function value.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    penalize = max(0.5 - candsfrac, 0.0) * 10 if not mayrounddown and not mayroundup else 0
+    
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:7.234559234328649
+<start_des>
+The new score function will prioritize variables with higher fractional parts and lower pseudo cost values for rounding. It will penalize variables that have a high number of locks for rounding and high Euclidean norm of the objective function vector. For binary variables, it will prioritize those with a lower number of nonzero entries and for non-binary variables, it will consider the objective value and the feasibility of rounding up/down.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    # Determine whether to round up based on the features
+    roundup = True if candsfrac > 0.5 else False
+    
+    # Calculate score based on the features
+    score += candsfrac / (1 + pscostdown + pscostup)
+    score -= nlocksdown + nlocksup
+    score -= objnorm
+    
+    if isBinary:
+        score -= nNonz
+    else:
+        score += obj
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:6.673628682066401
+<start_des>
+The new score function combines various features to determine the variable's score. It penalizes variables that cannot be easily rounded up or down, considers the fractional part of the solution value, the number of locks for rounding, the objective function value normalized by the Euclidean norm, the pseudo costs for rounding, the variable's solution value in the last root node's relaxation, the number of nonzero entries, and the binary type of the variable. The function aims to maximize the score for variables that have a high likelihood of improving the objective function by rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalize = 0.5 if mayrounddown or mayroundup else 0.0
+    factor1 = candsfrac * objnorm / (nlocksdown + nlocksup + 1)
+    factor2 = obj + pscostdown + pscostup + rootsolval
+    factor3 = 1 + 1/nNonz
+    factor4 = 2 if isBinary else 1
+
+    score = (factor1 + factor2) * factor3 + penalize * 10 * factor4
+
+    roundup = True if score > 0 else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.974123420527251
+<start_des>
+The new score function evaluates the variables based on a combination of their fractional part, solution value, objective function value, pseudo cost values, and other relevant information. It penalizes variables that are more difficult to round up/down while prioritizing those that contribute positively to the objective function and have lower pseudo cost values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown and mayroundup:
+        score -= 0.5   # penalize variables that can be rounded both up and down
+    
+    score += abs(candsfrac)   # prioritize variables with smaller fractional part
+    score += abs(obj)   # prioritize variables that positively impact the objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize variables with higher pseudo cost values
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # prioritize variables closer to the root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extreme values
+    
+    roundup = True if candsfrac > 0.5 else False   # round up if fractional part is greater than 0.5
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function will prioritize variables with a high fractional part and lower objective function value, aiming to round those variables up to potentially improve the objective function. It will also consider the number of locks for rounding up/down, the pseudo cost values, and the solution value in the root relaxation, giving more weight to variables with binary type and fewer non-zero entries.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    if mayrounddown or mayroundup:
+        penalize = max(0.5 - candsfrac, 0.0) * 10
+    else:
+        penalize = 0.0
+
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function considers the variables' fractional part, impact on the objective function, feasibility of rounding, Euclidean norm of the objective function vector, pseudo cost values, solution in the root node, number of non-zero entries, and binary type. It penalizes variables that cannot be easily rounded down or up while promoting variables that contribute significantly to improving the objective function and exploring new solutions.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    penalize = max(0.5 - candsfrac, 0.0) * 10 if mayrounddown or mayroundup else 0.0
+    
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (objnorm**2)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.745986508992373
+<start_des>
+The new score function calculates the variable's score based on a combination of the given features. It penalizes variables that cannot be rounded up or down easily while also taking into account the fractional part of the solution value, the number of locks for rounding, the objective function value normalized by the Euclidean norm, the pseudo costs for rounding, the variable's solution value in the last root node's relaxation, the number of nonzero entries, and the binary type of the variable. The function determines the rounding direction based on the calculated score, with a higher score indicating a higher likelihood of rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalty = 0.0
+    if mayrounddown or mayroundup:
+        penalty = 0.1
+    
+    score = (candsfrac * objnorm) / (nlocksdown + nlocksup + 1) + obj + pscostdown + pscostup + rootsolval - penalty - (nNonz * 0.5)
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.455411280129207
+<start_des>
+The new score function will prioritize variables with a lower fractional part in their solution value, higher pseudo cost values, and a higher Euclidean norm of the objective function vector. It will penalize variables that have a higher number of locks for rounding up, lower number of locks for rounding down, and a lower number of nonzero entries. Additionally, it will consider the possibility of rounding down or up without losing feasibility, penalizing variables that have this possibility. Lastly, for binary variables, it will give a higher score if the variable is closer to being rounded up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # determine rounding direction
+    roundup = False
+    if candsfrac >= 0.5:
+        roundup = True
+    
+    # calculate score
+    score = candsfrac * pscostup / (nlocksdown + 1) * (nlocksup + 1) * objnorm / (nNonz + 1)
+    if mayrounddown:
+        score -= 0.5
+    if mayroundup:
+        score -= 0.5
+    if isBinary:
+        score += abs(candsol - 1)  # closer to 1 is better for binary variables
+    
+    return score, roundup
+</end_code>
+
+round:3
+-------------------
+score:6.673628682066401
+<start_des>
+The new score function combines various features to determine the variable's score. It penalizes variables that cannot be easily rounded up or down, considers the fractional part of the solution value, the number of locks for rounding, the objective function value normalized by the Euclidean norm, the pseudo costs for rounding, the variable's solution value in the last root node's relaxation, the number of nonzero entries, and the binary type of the variable. The function aims to maximize the score for variables that have a high likelihood of improving the objective function by rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalize = 0.5 if mayrounddown or mayroundup else 0.0
+    factor1 = candsfrac * objnorm / (nlocksdown + nlocksup + 1)
+    factor2 = obj + pscostdown + pscostup + rootsolval
+    factor3 = 1 + 1/nNonz
+    factor4 = 2 if isBinary else 1
+
+    score = (factor1 + factor2) * factor3 + penalize * 10 * factor4
+
+    roundup = True if score > 0 else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:6.279669465315802
+<start_des>
+The new score function calculates the variable's score considering a combination of different features. It penalizes variables that can be rounded down or up easily, prioritizing variables with a lower fractional part, higher pseudo cost values, and a higher Euclidean norm of the objective function vector. It also penalizes variables with a higher number of locks for rounding up, a lower number of locks for rounding down, and a lower number of non-zero entries. For binary variables, it gives a higher score if the variable is closer to being rounded up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalty = 0
+    if mayrounddown or mayroundup:
+        penalty = 0.1
+    
+    score = (candsfrac * pscostup) / (nlocksdown + 1) * (nlocksup + 1) * objnorm / (nNonz + 1) + obj - penalty
+    if mayrounddown:
+        score -= 0.5
+    if mayroundup:
+        score -= 0.5
+    if isBinary:
+        score += abs(candsol - 1)
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:6.279669465315802
+<start_des>
+The new score function combines the weighted factors of the fractional part of the solution value, the pseudo cost values, the Euclidean norm of the objective function vector, the number of locks for rounding, the objective function value, the solution value in the root node's relaxation, the number of nonzero entries, and the binary type of the variable. It penalizes variables that can be easily rounded up/down and aims to maximize the score for variables with higher potential to improve the objective function by rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalize = 0.5 if mayrounddown or mayroundup else 0.0
+    factor1 = candsfrac * pscostup / (nlocksdown + 1) * (nlocksup + 1) * objnorm / (nNonz + 1)
+    factor2 = obj + pscostdown + rootsolval
+    if isBinary:
+        factor2 += abs(candsol - 1)
+    
+    score = (factor1 + factor2) * penalize
+
+    roundup = True if score > 0 else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.974123420527251
+<start_des>
+The new score function evaluates the variables based on a combination of their fractional part, solution value, objective function value, pseudo cost values, and other relevant information. It penalizes variables that are more difficult to round up/down while prioritizing those that contribute positively to the objective function and have lower pseudo cost values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown and mayroundup:
+        score -= 0.5   # penalize variables that can be rounded both up and down
+    
+    score += abs(candsfrac)   # prioritize variables with smaller fractional part
+    score += abs(obj)   # prioritize variables that positively impact the objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize variables with higher pseudo cost values
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # prioritize variables closer to the root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extreme values
+    
+    roundup = True if candsfrac > 0.5 else False   # round up if fractional part is greater than 0.5
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function will prioritize variables with a high fractional part and lower objective function value, aiming to round those variables up to potentially improve the objective function. It will also consider the number of locks for rounding up/down, the pseudo cost values, and the solution value in the root relaxation, giving more weight to variables with binary type and fewer non-zero entries.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    if mayrounddown or mayroundup:
+        penalize = max(0.5 - candsfrac, 0.0) * 10
+    else:
+        penalize = 0.0
+
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (2 if isBinary else 1)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function considers the variables' fractional part, impact on the objective function, feasibility of rounding, Euclidean norm of the objective function vector, pseudo cost values, solution in the root node, number of non-zero entries, and binary type. It penalizes variables that cannot be easily rounded down or up while promoting variables that contribute significantly to improving the objective function and exploring new solutions.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    penalize = max(0.5 - candsfrac, 0.0) * 10 if mayrounddown or mayroundup else 0.0
+    
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalize) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (objnorm**2)
+    roundup = True if (nlocksdown < nlocksup) else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.745986508992373
+<start_des>
+The new score function calculates the variable's score based on a combination of the given features. It penalizes variables that cannot be rounded up or down easily while also taking into account the fractional part of the solution value, the number of locks for rounding, the objective function value normalized by the Euclidean norm, the pseudo costs for rounding, the variable's solution value in the last root node's relaxation, the number of nonzero entries, and the binary type of the variable. The function determines the rounding direction based on the calculated score, with a higher score indicating a higher likelihood of rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalty = 0.0
+    if mayrounddown or mayroundup:
+        penalty = 0.1
+    
+    score = (candsfrac * objnorm) / (nlocksdown + nlocksup + 1) + obj + pscostdown + pscostup + rootsolval - penalty - (nNonz * 0.5)
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.455411280129207
+<start_des>
+The new score function will prioritize variables with a lower fractional part in their solution value, higher pseudo cost values, and a higher Euclidean norm of the objective function vector. It will penalize variables that have a higher number of locks for rounding up, lower number of locks for rounding down, and a lower number of nonzero entries. Additionally, it will consider the possibility of rounding down or up without losing feasibility, penalizing variables that have this possibility. Lastly, for binary variables, it will give a higher score if the variable is closer to being rounded up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # determine rounding direction
+    roundup = False
+    if candsfrac >= 0.5:
+        roundup = True
+    
+    # calculate score
+    score = candsfrac * pscostup / (nlocksdown + 1) * (nlocksup + 1) * objnorm / (nNonz + 1)
+    if mayrounddown:
+        score -= 0.5
+    if mayroundup:
+        score -= 0.5
+    if isBinary:
+        score += abs(candsol - 1)  # closer to 1 is better for binary variables
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.4938268308026394
+<start_des>
+The new score function combines various features to evaluate the variables, penalizing those that can be easily rounded up or down while prioritizing variables with smaller fractional parts, positive impacts on the objective function, lower pseudo cost values, proximity to the root node solution, and binary variables at extreme values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize variables that can be rounded both up and down
+    
+    score += abs(candsfrac)   # prioritize variables with smaller fractional part
+    score += abs(obj)   # prioritize variables positively impacting the objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize variables with higher pseudo cost values
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # prioritize variables closer to the root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extreme values
+    
+    roundup = True if score > 0 else False   # determine rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.4938268308026394
+<start_des>
+The new score function evaluates variables based on their potential for exploration, considering factors such as fractional part, solution value, locking constraints, objective function impact, pseudo cost values, proximity to the root node solution, number of non-zero entries, and binary variable extremity.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize rounding possibilities
+    
+    score += abs(candsfrac)   # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extremes
+        
+    roundup = True if score > 0 else False   # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+round:4
+-------------------
+score:5.910949113412047
+<start_des>
+The new score function evaluates the variable's score based on various factors such as the fractional part, solution value, impact on the objective function, feasibility of rounding, pseudo cost values, root node solution, number of non-zero entries, and binary type. It penalizes variables that are difficult to round down or up while rewarding those that contribute to improving the objective function and exploring new solutions.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    penalty = 0.0
+    if mayrounddown or mayroundup:
+        penalty = max(0.5 - candsfrac, 0.0) * 10
+    
+    score = candsfrac * (1 / (1 + obj)) * (1 + penalty) * (1 + pscostdown + pscostup) * (1 + rootsolval) * (1 + 1/nNonz) * (objnorm**2)
+    
+    roundup = True if nlocksdown < nlocksup else False
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.745986508992373
+<start_des>
+The new score function calculates the variable's score based on a combination of the given features. It penalizes variables that cannot be rounded up or down easily while also taking into account the fractional part of the solution value, the number of locks for rounding, the objective function value normalized by the Euclidean norm, the pseudo costs for rounding, the variable's solution value in the last root node's relaxation, the number of nonzero entries, and the binary type of the variable. The function determines the rounding direction based on the calculated score, with a higher score indicating a higher likelihood of rounding up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    penalty = 0.0
+    if mayrounddown or mayroundup:
+        penalty = 0.1
+    
+    score = (candsfrac * objnorm) / (nlocksdown + nlocksup + 1) + obj + pscostdown + pscostup + rootsolval - penalty - (nNonz * 0.5)
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.455411280129207
+<start_des>
+The new score function will prioritize variables with a lower fractional part in their solution value, higher pseudo cost values, and a higher Euclidean norm of the objective function vector. It will penalize variables that have a higher number of locks for rounding up, lower number of locks for rounding down, and a lower number of nonzero entries. Additionally, it will consider the possibility of rounding down or up without losing feasibility, penalizing variables that have this possibility. Lastly, for binary variables, it will give a higher score if the variable is closer to being rounded up.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # determine rounding direction
+    roundup = False
+    if candsfrac >= 0.5:
+        roundup = True
+    
+    # calculate score
+    score = candsfrac * pscostup / (nlocksdown + 1) * (nlocksup + 1) * objnorm / (nNonz + 1)
+    if mayrounddown:
+        score -= 0.5
+    if mayroundup:
+        score -= 0.5
+    if isBinary:
+        score += abs(candsol - 1)  # closer to 1 is better for binary variables
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.355759772918082
+<start_des>
+The new score function will prioritize variables with high fractional parts that can be rounded up to achieve integral values. It will also consider the objective function value, the variable's pseudo cost, the number of locks for rounding up, and the number of non-zero entries in the variable. Variables with lower pseudo costs, higher objective function values, and fewer locks for rounding up will be favored in the scoring process.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Determine whether to round up based on the variable's characteristics
+    roundup = True if candsfrac > 0.5 else False
+    
+    # Calculate the score based on the variable's characteristics
+    score = obj * pscostup / (1 + nlocksdown) + objnorm / (1 + nNonz)
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:5.094553058823339
+<start_des>
+The new score function aims to prioritize variables based on their potential impact on the objective function and the feasibility of the solution. It takes into account factors such as the current solution value, fractional part, objective value, pseudo cost, number of locks for rounding, and binary nature of the variable. The function penalizes variables that are difficult to round while favoring those that are likely to improve the solution quality or feasibility.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    # Determine rounding direction
+    roundup = True if candsfrac >= 0.5 else False
+
+    # Calculate score based on various factors
+    score = obj / (1 + objnorm)  # Penalize based on normalized objective value
+    score += (1 - candsfrac)  # Penalize based on fractional part
+    
+    if mayrounddown:
+        score -= pscostdown * nlocksdown  # Penalize if rounding down is difficult
+    if mayroundup:
+        score -= pscostup * nlocksup  # Penalize if rounding up is difficult
+    
+    score += 1 / (1 + rootsolval)  # Favor variables with non-zero root solution value
+    score += nNonz  # Favor variables with more non-zero entries
+    
+    if isBinary:
+        score *= 2  # Boost score for binary variables
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.4938268308026394
+<start_des>
+The new score function combines various features to evaluate the variables, penalizing those that can be easily rounded up or down while prioritizing variables with smaller fractional parts, positive impacts on the objective function, lower pseudo cost values, proximity to the root node solution, and binary variables at extreme values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize variables that can be rounded both up and down
+    
+    score += abs(candsfrac)   # prioritize variables with smaller fractional part
+    score += abs(obj)   # prioritize variables positively impacting the objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize variables with higher pseudo cost values
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # prioritize variables closer to the root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extreme values
+    
+    roundup = True if score > 0 else False   # determine rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.4938268308026394
+<start_des>
+The new score function evaluates variables based on their potential for exploration, considering factors such as fractional part, solution value, locking constraints, objective function impact, pseudo cost values, proximity to the root node solution, number of non-zero entries, and binary variable extremity.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize rounding possibilities
+    
+    score += abs(candsfrac)   # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extremes
+        
+    roundup = True if score > 0 else False   # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+
+<start_des>
+The new score function evaluates variables based on a combination of their fractional part, solution value, locking constraints, objective function impact, pseudo cost values, proximity to the root node solution, number of non-zero entries, binary variable extremity, and the Euclidean norm of the objective function vector. It penalizes variables with many rounding possibilities and high pseudo cost values while prioritizing variables that contribute positively to the objective function and are closer to the root node solution.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize rounding possibilities
+    
+    score += abs(candsfrac)   # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extremes
+        
+    score += objnorm * 0.1   # prioritize variables that contribute to the objective function vector
+    
+    roundup = True if score > 0 else False   # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.0054769572052225
+<start_des>
+The new score function assigns a score to each variable based on a combination of factors including the possibility of rounding up/down, fractional part of the solution value, objective function value, objective function norm, pseudo cost values, previous lock counts, previous solution values, number of non-zero entries, and binary type status of the variable. The function then determines whether to round the variable up or down based on the calculated score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Calculate score based on given inputs
+    score = ((candsfrac + obj + objnorm) / (pscostdown + pscostup)) * (nNonz + 1)
+    
+    # Determine rounding direction based on score
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.7476240489603305
+<start_des>
+The new score function should prioritize variables with high fractional parts and low pseudo costs, while penalizing variables that are not easily roundable or have high objective values. It should also consider the number of locks and whether the variable is binary or not.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on the fractional part
+    roundup = True if candsfrac >= 0.5 else False
+    
+    # Calculate score based on different features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    score += candsfrac
+    score -= pscostdown + pscostup
+    score -= 0.5 * obj
+    if isBinary:
+        score += 0.5
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if rootsolval > 0:
+        score += rootsolval 
+    
+    return score, roundup
+</end_code>
+
+round:5
+-------------------
+score:4.4938268308026394
+<start_des>
+The new score function combines various features to evaluate the variables, penalizing those that can be easily rounded up or down while prioritizing variables with smaller fractional parts, positive impacts on the objective function, lower pseudo cost values, proximity to the root node solution, and binary variables at extreme values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize variables that can be rounded both up and down
+    
+    score += abs(candsfrac)   # prioritize variables with smaller fractional part
+    score += abs(obj)   # prioritize variables positively impacting the objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize variables with higher pseudo cost values
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # prioritize variables closer to the root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extreme values
+    
+    roundup = True if score > 0 else False   # determine rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.4938268308026394
+<start_des>
+The new score function evaluates variables based on their potential for exploration, considering factors such as fractional part, solution value, locking constraints, objective function impact, pseudo cost values, proximity to the root node solution, number of non-zero entries, and binary variable extremity.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize rounding possibilities
+    
+    score += abs(candsfrac)   # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extremes
+        
+    roundup = True if score > 0 else False   # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+
+<start_des>
+The new score function evaluates variables based on a combination of their fractional part, solution value, locking constraints, objective function impact, pseudo cost values, proximity to the root node solution, number of non-zero entries, binary variable extremity, and the Euclidean norm of the objective function vector. It penalizes variables with many rounding possibilities and high pseudo cost values while prioritizing variables that contribute positively to the objective function and are closer to the root node solution.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1   # penalize rounding possibilities
+    
+    score += abs(candsfrac)   # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)   # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)   # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0   # prioritize binary variables at extremes
+        
+    score += objnorm * 0.1   # prioritize variables that contribute to the objective function vector
+    
+    roundup = True if score > 0 else False   # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+<start_des>
+The new score function prioritizes variables based on various factors such as the variable's fractional part, solution value, locking constraints, impact on the objective function, pseudo cost values, proximity to the root node solution, number of non-zero entries, binary variable extremity, and the Euclidean norm of the objective function vector. It penalizes variables that have many rounding possibilities, high pseudo cost values, and encourages variables that positively contribute to the objective function and are closer to the root node solution. Additionally, it considers the number of locks for rounding down/up of a special type as a factor in determining the score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Initialize score
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05*nlocksdown
+    score -= 0.05*nlocksup
+    
+    # Prioritize smaller fractional parts
+    score += abs(candsfrac)
+    
+    # Positively impact on objective function
+    score += abs(obj)
+    
+    # Penalize higher pseudo costs
+    score -= abs(pscostdown) + abs(pscostup)
+    
+    # Closer to root node solution
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)
+    
+    # Prioritize binary variables at extremes
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0
+    
+    # Prioritize variables that contribute to the objective function vector
+    score += objnorm * 0.1
+    
+    # Determine rounding direction
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+<start_des>
+The new score function prioritizes variables based on a combination of their impact on feasibility, fractional part, objective function value, pseudo cost values, proximity to the root node solution, number of non-zero entries, and binary nature. It penalizes variables that are easier to round and have high pseudo costs while favoring those that positively impact feasibility, contribute to the objective function, and are closer to the root node solution.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1  # penalize rounding possibilities for more exploration
+    
+    score += abs(candsfrac)  # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)  # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)  # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0  # prioritize binary variables at extremes
+        
+    score += objnorm * 0.1  # prioritize variables that contribute to the objective function vector
+    
+    roundup = True if score > 0 else False  # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.0054769572052225
+<start_des>
+The new score function assigns a score to each variable based on a combination of factors including the possibility of rounding up/down, fractional part of the solution value, objective function value, objective function norm, pseudo cost values, previous lock counts, previous solution values, number of non-zero entries, and binary type status of the variable. The function then determines whether to round the variable up or down based on the calculated score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Calculate score based on given inputs
+    score = ((candsfrac + obj + objnorm) / (pscostdown + pscostup)) * (nNonz + 1)
+    
+    # Determine rounding direction based on score
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.7476240489603305
+<start_des>
+The new score function should prioritize variables with high fractional parts and low pseudo costs, while penalizing variables that are not easily roundable or have high objective values. It should also consider the number of locks and whether the variable is binary or not.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on the fractional part
+    roundup = True if candsfrac >= 0.5 else False
+    
+    # Calculate score based on different features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    score += candsfrac
+    score -= pscostdown + pscostup
+    score -= 0.5 * obj
+    if isBinary:
+        score += 0.5
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if rootsolval > 0:
+        score += rootsolval 
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.6422762684446246
+<start_des>
+The new score function takes into account various factors such as the fractional part of the solution value, the objective function value, the number of locks for rounding up/down, the pseudo cost values, the Euclidean norm of the objective function, the variable type, and the number of nonzero entries. It penalizes variables that can be easily rounded up/down and stay feasible, while prioritizing variables with significant fractional parts, low pseudo costs, and high objective function values. The function aims to maximize the score for variables that are likely to lead to feasible integral solutions upon rounding.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    roundup = False
+    
+    # Determine rounding direction
+    if candsfrac >= 0.5:
+        roundup = True
+        score += candsfrac * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostup)
+    else:
+        score += (1 - candsfrac) * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostdown)
+    
+    # Penalize variables that can be easily rounded up/down
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    
+    # Other considerations
+    if isBinary:
+        score += 1
+    if nNonz > 0:
+        score += nNonz * objnorm
+    if rootsolval > 0:
+        score += rootsolval * candsol
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.9774050430772276
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also takes into account the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    if candsfrac >= 0.5:
+        score += 0.5
+    if pscostdown + pscostup < 0.5:
+        score += 0.3
+    if obj > 0.5:
+        score -= 0.4
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += 0.4
+    if nNonz > 2:
+        score += 0.3
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.7721964455525465
+<start_des>
+The new score function aims to prioritize variables with lower fractional values, lower pseudo costs, higher objective function values, and a higher number of non-zero entries. It penalizes variables with a higher number of locks for rounding down/up and variables that are binary. The function also takes into account the feasibility of rounding up or down and the previous solution values in the LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (abs(candsfrac) + 1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+round:6
+-------------------
+score:4.430526395345957
+<start_des>
+The new score function prioritizes variables based on various factors such as the variable's fractional part, solution value, locking constraints, impact on the objective function, pseudo cost values, proximity to the root node solution, number of non-zero entries, binary variable extremity, and the Euclidean norm of the objective function vector. It penalizes variables that have many rounding possibilities, high pseudo cost values, and encourages variables that positively contribute to the objective function and are closer to the root node solution. Additionally, it considers the number of locks for rounding down/up of a special type as a factor in determining the score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Initialize score
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05*nlocksdown
+    score -= 0.05*nlocksup
+    
+    # Prioritize smaller fractional parts
+    score += abs(candsfrac)
+    
+    # Positively impact on objective function
+    score += abs(obj)
+    
+    # Penalize higher pseudo costs
+    score -= abs(pscostdown) + abs(pscostup)
+    
+    # Closer to root node solution
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)
+    
+    # Prioritize binary variables at extremes
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0
+    
+    # Prioritize variables that contribute to the objective function vector
+    score += objnorm * 0.1
+    
+    # Determine rounding direction
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+<start_des>
+The new score function prioritizes variables based on a combination of their impact on feasibility, fractional part, objective function value, pseudo cost values, proximity to the root node solution, number of non-zero entries, and binary nature. It penalizes variables that are easier to round and have high pseudo costs while favoring those that positively impact feasibility, contribute to the objective function, and are closer to the root node solution.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1  # penalize rounding possibilities for more exploration
+    
+    score += abs(candsfrac)  # prioritize smaller fractional parts
+    score += abs(obj)   # positively impact on objective function
+    score -= abs(pscostdown) + abs(pscostup)  # penalize higher pseudo costs
+    
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)  # closer to root node solution
+        
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0  # prioritize binary variables at extremes
+        
+    score += objnorm * 0.1  # prioritize variables that contribute to the objective function vector
+    
+    roundup = True if score > 0 else False  # determine rounding direction
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+
+<start_des>
+The new score function assigns a score to each variable based on several factors: penalizing rounding possibilities and locking constraints, prioritizing smaller fractional parts, considering the impact on the objective function, pseudo cost values, proximity to the root node solution, binary variables at extremes, contribution to the objective function vector, and the number of non-zero entries. The function aims to guide the diving heuristic towards exploring promising variables while avoiding infeasible rounding options.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Initialize score
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05 * nlocksdown
+    score -= 0.05 * nlocksup
+    
+    # Prioritize smaller fractional parts
+    score += abs(candsfrac)
+    
+    # Positively impact on objective function
+    score += abs(obj)
+    
+    # Penalize higher pseudo costs
+    score -= abs(pscostdown) + abs(pscostup)
+    
+    # Proximity to root node solution
+    if rootsolval != 0:
+        score += 0.5 * abs(candsol - rootsolval)
+    
+    # Prioritize binary variables at extremes
+    if isBinary:
+        score += 0.5 if candsol == 0 or candsol == 1 else 0
+    
+    # Prioritize variables contributing to the objective function vector
+    score += objnorm * 0.1
+    
+    # Determine rounding direction
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.430526395345957
+<start_des>
+The new score function prioritizes variables based on a combination of their impact on feasibility, the fractional part of the solution value, the objective function value, pseudo cost values, proximity to the root node solution, the number of non-zero entries, and whether the variable is of binary type. It penalizes variables that are difficult to round and have high pseudo costs while favoring those that positively impact feasibility, contribute to the objective function, and are closer to the root node solution.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize rounding possibilities for more exploration
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    
+    # Prioritize smaller fractional parts
+    score += abs(candsfrac)
+    
+    # Positively impact on objective function
+    score += abs(obj)
+    
+    # Penalize higher pseudo costs
+    score -= abs(pscostdown) + abs(pscostup)
+    
+    # Closer to root node solution
+    if rootsolval != 0:
+        score += 0.3 * abs(candsol - rootsolval)
+    
+    # Prioritize binary variables at extremes
+    if isBinary:
+        score += 0.3 if candsol == 0 or candsol == 1 else 0  
+    
+    # Prioritize variables that contribute to the objective function vector
+    score += objnorm * 0.2  
+    
+    # Determine rounding direction based on score
+    roundup = True if score > 0 else False  
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:4.0054769572052225
+<start_des>
+The new score function assigns a score to each variable based on a combination of factors including the possibility of rounding up/down, fractional part of the solution value, objective function value, objective function norm, pseudo cost values, previous lock counts, previous solution values, number of non-zero entries, and binary type status of the variable. The function then determines whether to round the variable up or down based on the calculated score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Calculate score based on given inputs
+    score = ((candsfrac + obj + objnorm) / (pscostdown + pscostup)) * (nNonz + 1)
+    
+    # Determine rounding direction based on score
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.7476240489603305
+<start_des>
+The new score function should prioritize variables with high fractional parts and low pseudo costs, while penalizing variables that are not easily roundable or have high objective values. It should also consider the number of locks and whether the variable is binary or not.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on the fractional part
+    roundup = True if candsfrac >= 0.5 else False
+    
+    # Calculate score based on different features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    score += candsfrac
+    score -= pscostdown + pscostup
+    score -= 0.5 * obj
+    if isBinary:
+        score += 0.5
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if rootsolval > 0:
+        score += rootsolval 
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.6422762684446246
+<start_des>
+The new score function takes into account various factors such as the fractional part of the solution value, the objective function value, the number of locks for rounding up/down, the pseudo cost values, the Euclidean norm of the objective function, the variable type, and the number of nonzero entries. It penalizes variables that can be easily rounded up/down and stay feasible, while prioritizing variables with significant fractional parts, low pseudo costs, and high objective function values. The function aims to maximize the score for variables that are likely to lead to feasible integral solutions upon rounding.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    roundup = False
+    
+    # Determine rounding direction
+    if candsfrac >= 0.5:
+        roundup = True
+        score += candsfrac * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostup)
+    else:
+        score += (1 - candsfrac) * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostdown)
+    
+    # Penalize variables that can be easily rounded up/down
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    
+    # Other considerations
+    if isBinary:
+        score += 1
+    if nNonz > 0:
+        score += nNonz * objnorm
+    if rootsolval > 0:
+        score += rootsolval * candsol
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.044936760336536
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    if candsfrac >= 0.5:
+        score += candsfrac
+    if pscostdown + pscostup < 0.5:
+        score -= pscostdown + pscostup
+    if obj > 0.5:
+        score -= 0.5 * obj
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += rootsolval 
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.9774050430772276
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also takes into account the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    if candsfrac >= 0.5:
+        score += 0.5
+    if pscostdown + pscostup < 0.5:
+        score += 0.3
+    if obj > 0.5:
+        score -= 0.4
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += 0.4
+    if nNonz > 2:
+        score += 0.3
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.7721964455525465
+<start_des>
+The new score function aims to prioritize variables with lower fractional values, lower pseudo costs, higher objective function values, and a higher number of non-zero entries. It penalizes variables with a higher number of locks for rounding down/up and variables that are binary. The function also takes into account the feasibility of rounding up or down and the previous solution values in the LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (abs(candsfrac) + 1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+round:7
+-------------------
+score:4.0054769572052225
+<start_des>
+The new score function assigns a score to each variable based on a combination of factors including the possibility of rounding up/down, fractional part of the solution value, objective function value, objective function norm, pseudo cost values, previous lock counts, previous solution values, number of non-zero entries, and binary type status of the variable. The function then determines whether to round the variable up or down based on the calculated score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    # Calculate score based on given inputs
+    score = ((candsfrac + obj + objnorm) / (pscostdown + pscostup)) * (nNonz + 1)
+    
+    # Determine rounding direction based on score
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.7476240489603305
+<start_des>
+The new score function should prioritize variables with high fractional parts and low pseudo costs, while penalizing variables that are not easily roundable or have high objective values. It should also consider the number of locks and whether the variable is binary or not.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on the fractional part
+    roundup = True if candsfrac >= 0.5 else False
+    
+    # Calculate score based on different features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    score += candsfrac
+    score -= pscostdown + pscostup
+    score -= 0.5 * obj
+    if isBinary:
+        score += 0.5
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if rootsolval > 0:
+        score += rootsolval 
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.6422762684446246
+<start_des>
+The new score function takes into account various factors such as the fractional part of the solution value, the objective function value, the number of locks for rounding up/down, the pseudo cost values, the Euclidean norm of the objective function, the variable type, and the number of nonzero entries. It penalizes variables that can be easily rounded up/down and stay feasible, while prioritizing variables with significant fractional parts, low pseudo costs, and high objective function values. The function aims to maximize the score for variables that are likely to lead to feasible integral solutions upon rounding.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    roundup = False
+    
+    # Determine rounding direction
+    if candsfrac >= 0.5:
+        roundup = True
+        score += candsfrac * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostup)
+    else:
+        score += (1 - candsfrac) * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostdown)
+    
+    # Penalize variables that can be easily rounded up/down
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    
+    # Other considerations
+    if isBinary:
+        score += 1
+    if nNonz > 0:
+        score += nNonz * objnorm
+    if rootsolval > 0:
+        score += rootsolval * candsol
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.044936760336536
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    if candsfrac >= 0.5:
+        score += candsfrac
+    if pscostdown + pscostup < 0.5:
+        score -= pscostdown + pscostup
+    if obj > 0.5:
+        score -= 0.5 * obj
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += rootsolval 
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.9774050430772276
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also takes into account the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    if candsfrac >= 0.5:
+        score += 0.5
+    if pscostdown + pscostup < 0.5:
+        score += 0.3
+    if obj > 0.5:
+        score -= 0.4
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += 0.4
+    if nNonz > 2:
+        score += 0.3
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.9774050430772276
+<start_des>
+The new score function calculates the score of a variable based on a combination of factors including the possibility of rounding up/down, the fractional part of the solution value, objective function value, objective function norm, pseudo cost values, previous lock counts, previous solution values, number of non-zero entries, and binary type status of the variable. It aims to prioritize variables with high fractional parts and low pseudo costs, while penalizing variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, in order to come up with a comprehensive score for guiding the diving heuristic.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Combining factors to calculate the score
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    if candsfrac >= 0.5:
+        score += 0.5
+    if pscostdown + pscostup < 0.5:
+        score += 0.3
+    if obj > 0.5:
+        score -= 0.4
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += 0.4
+    if nNonz > 2:
+        score += 0.3
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Determine rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.7721964455525465
+<start_des>
+The new score function aims to prioritize variables with lower fractional values, lower pseudo costs, higher objective function values, and a higher number of non-zero entries. It penalizes variables with a higher number of locks for rounding down/up and variables that are binary. The function also takes into account the feasibility of rounding up or down and the previous solution values in the LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (abs(candsfrac) + 1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.6252636785969754
+<start_des>
+The new score function prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It also penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. The function aims to strike a balance between exploration and exploitation while considering multiple factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.3760957240875715
+<start_des>
+The new score function prioritizes variables with low fractional values, low pseudo costs, high objective values, and a high number of non-zero entries. It penalizes variables with more locks for rounding and binary variables. It also considers the feasibility of rounding down/up and the previous solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    # Calculate score based on different features
+    score = (1/candsfrac) * (1/(1 + obj)) * (1/(1 + pscostdown + pscostup)) * (1 + nNonz)
+
+    # Penalize if rounding down/up is possible
+    if mayrounddown and mayroundup:
+        score *= 0.8
+
+    # Penalize variables with more locks
+    if nlocksdown > nlocksup:
+        score *= 0.9
+        roundup = False
+    else:
+        roundup = True
+        
+    # Penalize binary variables
+    if isBinary:
+        score *= 0.7
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.2264872061159564
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05 * nlocksdown
+    score -= 0.05 * nlocksup
+    
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+        
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+round:8
+-------------------
+score:3.6422762684446246
+<start_des>
+The new score function considers the fractional part of the solution value, the objective function value, the number of locks for rounding up/down, the pseudo cost values, the Euclidean norm of the objective function, the variable type, the number of nonzero entries, and the solution of the variable in the last root node's relaxation. It penalizes variables that can be easily rounded up/down and stay feasible, while prioritizing variables with significant fractional parts, low pseudo costs, high objective function values, and historical solution values. The function aims to maximize the score for variables that are likely to lead to feasible integral solutions upon rounding, while promoting exploration for variables with more uncertain behavior.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    roundup = False
+    
+    # Determine round-up or round-down direction based on various factors
+    if candsfrac >= 0.5:
+        roundup = True
+        score += candsfrac * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostup) + rootsolval
+    else:
+        score += (1 - candsfrac) * obj + (1 / (nlocksdown + nlocksup + 1)) * objnorm + (1 / pscostdown) + rootsolval
+    
+    # Penalize variables that can be easily rounded up/down to promote exploration
+    if mayrounddown:
+        score -= 0.2 # Increased penalty for easier rounding down
+    if mayroundup:
+        score -= 0.2 # Increased penalty for easier rounding up
+    
+    # Other considerations
+    if isBinary:
+        score += 1
+    if nNonz > 0:
+        score += nNonz * objnorm
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:3.044936760336536
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.1
+    if mayroundup:
+        score -= 0.1
+    if candsfrac >= 0.5:
+        score += candsfrac
+    if pscostdown + pscostup < 0.5:
+        score -= pscostdown + pscostup
+    if obj > 0.5:
+        score -= 0.5 * obj
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += rootsolval 
+    if nNonz > 0:
+        score += nNonz * 0.1
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.9774050430772276
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also takes into account the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Decide rounding direction based on multiple features
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    if candsfrac >= 0.5:
+        score += 0.5
+    if pscostdown + pscostup < 0.5:
+        score += 0.3
+    if obj > 0.5:
+        score -= 0.4
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += 0.4
+    if nNonz > 2:
+        score += 0.3
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.9774050430772276
+<start_des>
+The new score function calculates the score of a variable based on a combination of factors including the possibility of rounding up/down, the fractional part of the solution value, objective function value, objective function norm, pseudo cost values, previous lock counts, previous solution values, number of non-zero entries, and binary type status of the variable. It aims to prioritize variables with high fractional parts and low pseudo costs, while penalizing variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, in order to come up with a comprehensive score for guiding the diving heuristic.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Combining factors to calculate the score
+    if mayrounddown:
+        score -= 0.2
+    if mayroundup:
+        score -= 0.2
+    if candsfrac >= 0.5:
+        score += 0.5
+    if pscostdown + pscostup < 0.5:
+        score += 0.3
+    if obj > 0.5:
+        score -= 0.4
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    if objnorm > 1:
+        score += 0.2
+    if rootsolval != 0:
+        score += 0.4
+    if nNonz > 2:
+        score += 0.3
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False   # Determine rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.7721964455525465
+<start_des>
+The new score function aims to prioritize variables with lower fractional values, lower pseudo costs, higher objective function values, and a higher number of non-zero entries. It penalizes variables with a higher number of locks for rounding down/up and variables that are binary. The function also takes into account the feasibility of rounding up or down and the previous solution values in the LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (abs(candsfrac) + 1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.6252636785969754
+<start_des>
+The new score function prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It also penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. The function aims to strike a balance between exploration and exploitation while considering multiple factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.604404679995858
+<start_des>
+The new score function aims to prioritize variables based on their potential contribution to improving the objective function value while considering various constraints and properties of the variables. It penalizes variables that are not easily roundable or have high pseudo cost values, while also considering the objective function value, the number of nonzero entries in the variable, and the variable type.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = obj / objnorm  # prioritize variables with a higher relative objective function value
+    if mayrounddown:
+        score -= 0.1  # penalize variables that may easily be rounded down but stay feasible
+    if mayroundup:
+        score -= 0.1  # penalize variables that may easily be rounded up but stay feasible
+    score -= min(pscostdown, pscostup)  # penalize variables with high pseudo cost values
+    score += nNonz  # prioritize variables with more nonzero entries
+    if isBinary:
+        score *= 2  # double the score for binary variables
+    
+    roundup = True  # default to rounding up
+    if candsfrac < 0.5 and mayrounddown:
+        roundup = False  # round down if the fractional part is less than 0.5 and it's feasible
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.3760957240875715
+<start_des>
+The new score function prioritizes variables with low fractional values, low pseudo costs, high objective values, and a high number of non-zero entries. It penalizes variables with more locks for rounding and binary variables. It also considers the feasibility of rounding down/up and the previous solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    # Calculate score based on different features
+    score = (1/candsfrac) * (1/(1 + obj)) * (1/(1 + pscostdown + pscostup)) * (1 + nNonz)
+
+    # Penalize if rounding down/up is possible
+    if mayrounddown and mayroundup:
+        score *= 0.8
+
+    # Penalize variables with more locks
+    if nlocksdown > nlocksup:
+        score *= 0.9
+        roundup = False
+    else:
+        roundup = True
+        
+    # Penalize binary variables
+    if isBinary:
+        score *= 0.7
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.2264872061159564
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05 * nlocksdown
+    score -= 0.05 * nlocksup
+    
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+        
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.064305050878379
+<start_des>
+The new score function penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It prioritizes variables with high fractional parts and low pseudo costs, considering the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable. The function aims to balance exploration and exploitation while taking into account various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    if candsfrac == 1:
+        score -= 0.2
+    if candsfrac == 0:
+        score += 0.2
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Consider the number of locks
+    score -= nlocksdown * 0.05
+    score -= nlocksup * 0.05
+    
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+round:9
+-------------------
+score:2.933096567807726
+<start_des>
+The new score function prioritizes variables with a balance between fractional value closeness to an integer, lower pseudo costs, high objective function values, and a higher number of non-zero entries. It penalizes variables that may be easily rounded down or up and stay feasible, as we aim for more exploration in the diving heuristic. The function also considers the Euclidean norm of the objective function vector and the root node relaxation solution values, adjusting the score accordingly.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    score = (abs(candsfrac - round(candsfrac)) + 1/abs(candsfrac - round(candsfrac))) * (1 + pscostdown + pscostup) * (1/(1 + obj)) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.8
+    
+    if nlocksdown > nlocksup:
+        score *= 0.9
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 1.5
+
+    score -= abs(rootsolval) / objnorm
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.933096567807726
+<start_des>
+The new score function combines the fractional closeness to an integer, pseudo cost values, objective function values, number of non-zero entries, and feasibility of rounding up or down. It penalizes variables easily rounded to maintain feasibility, prioritizes variables with higher objective function values and a larger number of non-zero entries, and adjusts the score based on the Euclidean norm of the objective function vector and the root node relaxation solution values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    score = (abs(candsfrac - round(candsfrac)) + 1/abs(candsfrac - round(candsfrac))) * (1 + pscostdown + pscostup) * (1/(1 + obj)) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.8
+        
+    if nlocksdown > nlocksup:
+        score *= 0.9
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 1.5
+
+    score -= abs(rootsolval) / objnorm
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.7721964455525465
+<start_des>
+The new score function aims to prioritize variables with lower fractional values, lower pseudo costs, higher objective function values, and a higher number of non-zero entries. It penalizes variables with a higher number of locks for rounding down/up and variables that are binary. The function also takes into account the feasibility of rounding up or down and the previous solution values in the LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (abs(candsfrac) + 1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.6252636785969754
+<start_des>
+The new score function prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It also penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. The function aims to strike a balance between exploration and exploitation while considering multiple factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    roundup = True if score > 0 else False
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.6198110468057534
+<start_des>
+The new score function prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It also penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. The function aims to strike a balance between exploration and exploitation while considering multiple factors that contribute to the variable's importance in the MILP problem. Additionally, it considers the feasibility of rounding down or up and the solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.6198110468057534
+<start_des>
+The new score function penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It aims to balance exploration and exploitation while considering multiple factors contributing to the variable's importance in the MILP problem. It also incorporates the feasibility of rounding down or up and the solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.604404679995858
+<start_des>
+The new score function aims to prioritize variables based on their potential contribution to improving the objective function value while considering various constraints and properties of the variables. It penalizes variables that are not easily roundable or have high pseudo cost values, while also considering the objective function value, the number of nonzero entries in the variable, and the variable type.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = obj / objnorm  # prioritize variables with a higher relative objective function value
+    if mayrounddown:
+        score -= 0.1  # penalize variables that may easily be rounded down but stay feasible
+    if mayroundup:
+        score -= 0.1  # penalize variables that may easily be rounded up but stay feasible
+    score -= min(pscostdown, pscostup)  # penalize variables with high pseudo cost values
+    score += nNonz  # prioritize variables with more nonzero entries
+    if isBinary:
+        score *= 2  # double the score for binary variables
+    
+    roundup = True  # default to rounding up
+    if candsfrac < 0.5 and mayrounddown:
+        roundup = False  # round down if the fractional part is less than 0.5 and it's feasible
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.3760957240875715
+<start_des>
+The new score function prioritizes variables with low fractional values, low pseudo costs, high objective values, and a high number of non-zero entries. It penalizes variables with more locks for rounding and binary variables. It also considers the feasibility of rounding down/up and the previous solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    # Calculate score based on different features
+    score = (1/candsfrac) * (1/(1 + obj)) * (1/(1 + pscostdown + pscostup)) * (1 + nNonz)
+
+    # Penalize if rounding down/up is possible
+    if mayrounddown and mayroundup:
+        score *= 0.8
+
+    # Penalize variables with more locks
+    if nlocksdown > nlocksup:
+        score *= 0.9
+        roundup = False
+    else:
+        roundup = True
+        
+    # Penalize binary variables
+    if isBinary:
+        score *= 0.7
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.2264872061159564
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05 * nlocksdown
+    score -= 0.05 * nlocksup
+    
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+        
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.064305050878379
+<start_des>
+The new score function penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It prioritizes variables with high fractional parts and low pseudo costs, considering the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable. The function aims to balance exploration and exploitation while taking into account various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    if candsfrac == 1:
+        score -= 0.2
+    if candsfrac == 0:
+        score += 0.2
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Consider the number of locks
+    score -= nlocksdown * 0.05
+    score -= nlocksup * 0.05
+    
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+round:10
+-------------------
+score:2.6198110468057534
+<start_des>
+The new score function prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It also penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. The function aims to strike a balance between exploration and exploitation while considering multiple factors that contribute to the variable's importance in the MILP problem. Additionally, it considers the feasibility of rounding down or up and the solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.6198110468057534
+<start_des>
+The new score function penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It prioritizes variables with lower fractional values and pseudo costs, higher objective function values, and a higher number of non-zero entries. It aims to balance exploration and exploitation while considering multiple factors contributing to the variable's importance in the MILP problem. It also incorporates the feasibility of rounding down or up and the solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = (1/candsfrac) * (1/(1 + obj)) * (1 + pscostdown + pscostup) * (1/(1 + nNonz))
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    
+    if candsfrac >= 0.5:
+        score += candsfrac
+    
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+    
+    if objnorm > 1:
+        score += 0.2
+    
+    if rootsolval != 0:
+        score += rootsolval 
+    
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    if nlocksdown + nlocksup > 1:
+        score -= 0.1
+    
+    if mayrounddown and mayroundup:
+        score *= 0.5
+    
+    if nlocksdown > nlocksup:
+        score *= 0.8
+        roundup = False
+    else:
+        roundup = True
+        
+    if isBinary:
+        score *= 0.7
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.604404679995858
+<start_des>
+The new score function aims to prioritize variables based on their potential contribution to improving the objective function value while considering various constraints and properties of the variables. It penalizes variables that are not easily roundable or have high pseudo cost values, while also considering the objective function value, the number of nonzero entries in the variable, and the variable type.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = obj / objnorm  # prioritize variables with a higher relative objective function value
+    if mayrounddown:
+        score -= 0.1  # penalize variables that may easily be rounded down but stay feasible
+    if mayroundup:
+        score -= 0.1  # penalize variables that may easily be rounded up but stay feasible
+    score -= min(pscostdown, pscostup)  # penalize variables with high pseudo cost values
+    score += nNonz  # prioritize variables with more nonzero entries
+    if isBinary:
+        score *= 2  # double the score for binary variables
+    
+    roundup = True  # default to rounding up
+    if candsfrac < 0.5 and mayrounddown:
+        roundup = False  # round down if the fractional part is less than 0.5 and it's feasible
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.544287818975776
+<start_des>
+The new score function prioritizes variables with lower fractional values, higher solution values in LP relaxation, lower pseudo costs, higher objective function values, higher Euclidean norm of the objective function vector, higher root relaxation solution values, a higher number of nonzero entries, and penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. The function aims to strike a balance between exploration and exploitation by considering multiple factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    score += candsfrac                                # Prioritize variables with lower fractional values
+    score += candsol if candsol > 0 else 0            # Higher solution values in LP relaxation
+    score -= pscostdown + pscostup                    # Lower pseudo costs
+    score += obj if obj > 0 else 0                    # Higher objective function values
+    score += objnorm if objnorm > 1 else 0            # Higher Euclidean norm of the objective function vector
+    score += rootsolval if rootsolval != 0 else 0      # Higher root relaxation solution values
+    score += nNonz * 0.1                              # Higher number of nonzero entries
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1                                   # Penalize if possible to round variable down/up and stay feasible
+    
+    if candsfrac < 0.5:
+        score -= candsfrac                              # Penalize easily roundable variables
+        
+    if obj > 0.5:
+        score -= 0.5 * obj                              # Penalize high objective values
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5                                     # Penalize binary variables not at extreme values
+        
+    roundup = True if score > 0 else False              # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.544287818975776
+<start_des>
+The new score function aims to prioritize variables with lower fractional values, higher LP relaxation solution values, lower pseudo costs, higher objective function values, higher Euclidean norm of the objective function vector, higher root relaxation solution values, a higher number of nonzero entries, while penalizing variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It strikes a balance between exploration and exploitation by considering these factors to determine the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    score += candsfrac                                # Prioritize variables with lower fractional values
+    score += candsol if candsol > 0 else 0            # Higher solution values in LP relaxation
+    score -= pscostdown + pscostup                    # Lower pseudo costs
+    score += obj if obj > 0 else 0                    # Higher objective function values
+    score += objnorm if objnorm > 1 else 0            # Higher Euclidean norm of the objective function vector
+    score += rootsolval if rootsolval != 0 else 0      # Higher root relaxation solution values
+    score += nNonz * 0.1                              # Higher number of nonzero entries
+    
+    if mayrounddown or mayroundup:
+        score -= 0.1                                   # Penalize if possible to round variable down/up and stay feasible
+    
+    if candsfrac < 0.5:
+        score -= candsfrac                              # Penalize easily roundable variables
+        
+    if obj > 0.5:
+        score -= 0.5 * obj                              # Penalize high objective values
+    
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5                                     # Penalize binary variables not at extreme values
+        
+    roundup = True if score > 0 else False              # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.4248285036577317
+<start_des>
+The new score function aims to balance the importance of variables by considering their fractional values, pseudo costs, objective function values, and feasibility of rounding. It also takes into account the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, the number of non-zero entries, and the binary nature of the variable. By combining these factors, the function calculates a score that guides the diving heuristic towards exploring promising variables while penalizing those that are easily rounded or have high objective values.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.05
+    score -= 0.03 * (nlocksdown + nlocksup)
+    
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.6:
+        score -= 0.1 * candsfrac
+    
+    # Penalize high objective values
+    if obj > 0.7:
+        score -= 0.2 * obj
+        
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.2
+        
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 2:
+        score += 0.3
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval * 0.7
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 5:
+        score += nNonz * 0.05
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.4248285036577317
+<start_des>
+The new score function aims to prioritize variables with high fractional parts, penalize easily roundable variables, penalize high objective values, and consider the Euclidean norm of the objective function vector, the number of non-zero entries, and the binary nature of the variable. It also penalizes variables that have locking constraints or are easily roundable, while rewarding variables with high fractional values, fitting objective values, and a balanced solution in the last root node's relaxation. By combining these factors, the function calculates a score that guides the diving heuristic towards exploring promising variables while penalizing those that are easily rounded or have high objective values. The rounding direction is determined based on the calculated score.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.6:
+        score -= 0.1 * candsfrac
+    
+    # Penalize high objective values
+    if obj > 0.7:
+        score -= 0.2 * obj
+        
+    # Penalize variables with locking constraints
+    score -= 0.03 * (nlocksdown + nlocksup)
+    
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 2:
+        score += 0.3
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 5:
+        score += nNonz * 0.05
+    
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval * 0.7
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.3760957240875715
+<start_des>
+The new score function prioritizes variables with low fractional values, low pseudo costs, high objective values, and a high number of non-zero entries. It penalizes variables with more locks for rounding and binary variables. It also considers the feasibility of rounding down/up and the previous solution values in both LP relaxation and root node relaxation.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+
+    # Calculate score based on different features
+    score = (1/candsfrac) * (1/(1 + obj)) * (1/(1 + pscostdown + pscostup)) * (1 + nNonz)
+
+    # Penalize if rounding down/up is possible
+    if mayrounddown and mayroundup:
+        score *= 0.8
+
+    # Penalize variables with more locks
+    if nlocksdown > nlocksup:
+        score *= 0.9
+        roundup = False
+    else:
+        roundup = True
+        
+    # Penalize binary variables
+    if isBinary:
+        score *= 0.7
+
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.2264872061159564
+<start_des>
+The new score function prioritizes variables with high fractional parts and low pseudo costs, penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It also considers the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable, along with whether rounding up is feasible. The goal is to balance exploration and exploitation while considering various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize rounding possibilities and locking constraints
+    if mayrounddown or mayroundup:
+        score -= 0.1
+    score -= 0.05 * nlocksdown
+    score -= 0.05 * nlocksup
+    
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+        
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+
+-------------------
+score:2.064305050878379
+<start_des>
+The new score function penalizes variables that are easily roundable, have high objective values, or binary variables that are not at extreme values. It prioritizes variables with high fractional parts and low pseudo costs, considering the number of locks, the Euclidean norm of the objective function vector, the solution value in the last root node's relaxation, and the number of nonzero entries in the variable. The function aims to balance exploration and exploitation while taking into account various factors that contribute to the variable's importance in the MILP problem.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, 
+                 obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    
+    score = 0
+    
+    # Penalize easily roundable variables
+    if candsfrac < 0.5:
+        score -= candsfrac
+    if candsfrac == 1:
+        score -= 0.2
+    if candsfrac == 0:
+        score += 0.2
+    
+    # Penalize high objective values
+    if obj > 0.5:
+        score -= 0.5 * obj
+    
+    # Penalize binary variables not at extreme values
+    if isBinary and (candsol != 0 and candsol != 1):
+        score -= 0.5
+        
+    # Prioritize variables with high fractional parts
+    score += candsfrac
+    
+    # Consider the number of locks
+    score -= nlocksdown * 0.05
+    score -= nlocksup * 0.05
+    
+    # Consider the Euclidean norm of the objective function vector
+    if objnorm > 1:
+        score += 0.2
+    
+    # Consider the solution value in the last root node's relaxation
+    if rootsolval != 0:
+        score += rootsolval
+    
+    # Consider the number of non-zero entries in the variable
+    if nNonz > 0:
+        score += nNonz * 0.1
+    
+    roundup = True if score > 0 else False   # Rounding direction based on the calculated score
+    
+    return score, roundup
+</end_code>
+

@@ -1,0 +1,41 @@
+round:0
+-------------------
+score:12.406915926995788
+<start_des>
+The new score function should prioritize variables that have a high potential to improve the objective function value and are likely to lead to feasible integral solutions. It should consider factors such as the fractional part of the solution value, the number of locks for rounding, the objective function value, the Euclidean norm of the objective function vector, the variable's pseudo cost, the solution value in the last root node, the number of nonzero entries in the variable, and whether the variable is binary.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    roundup = False
+
+    # Your scoring logic here
+    score = objnorm * (1 - candsfrac)  # Example scoring logic
+
+    if candsfrac > 0.5:
+        roundup = True
+
+    return score, roundup
+</end_code>
+
+valid:+++++++++++++++++-------------------
+score:15.310942426117926
+<start_des>
+The new score function should prioritize variables that have a high potential to improve the objective function value and are likely to lead to feasible integral solutions. It should consider factors such as the fractional part of the solution value, the number of locks for rounding, the objective function value, the Euclidean norm of the objective function vector, the variable's pseudo cost, the solution value in the last root node, the number of nonzero entries in the variable, and whether the variable is binary.
+</end_des>
+
+<start_code>
+def myheurdiving(mayrounddown, mayroundup, candsfrac, candsol, nlocksdown, nlocksup, obj, objnorm, pscostdown, pscostup, rootsolval, nNonz, isBinary):
+    score = 0
+    roundup = False
+
+    # Your scoring logic here
+    score = objnorm * (1 - candsfrac)  # Example scoring logic
+
+    if candsfrac > 0.5:
+        roundup = True
+
+    return score, roundup
+</end_code>
+
